@@ -1,13 +1,13 @@
 <template>
-  <Page class="page" @loaded="onPageLoaded">
+  <Page @loaded="onPageLoaded">
     <ActionBar title="Basic App" flat="true"></ActionBar>
 
     <RadSideDrawer ref="drawer">
-      <StackLayout ~drawerContent class="sideStackLayout">
-        <StackLayout class="sideTitleStackLayout">
+      <StackLayout ~drawerContent>
+        <StackLayout>
           <Label text="Navigation Menu"></Label>
         </StackLayout>
-        <StackLayout class="sideStackLayout">
+        <StackLayout>
           <Label text="First" class="sideLabel sideLightRedLabel" @tap="getUsers"></Label>
           <Label text="Second" class="sideLabel"></Label>
           <Label text="Third" class="sideLabel"></Label>
@@ -15,7 +15,7 @@
           <Label text="Fifth" class="sideLabel"></Label>
           <Label text="Sixth" class="sideLabel"></Label>
           <Label text="Seventh" class="sideLabel"></Label>
-          <Label text="Eigth" class="sideLabel"></Label>
+          <Label text="Main" class="sideLabel" @tap="callMain"></Label>
         </StackLayout>
         <Label
           text="Close Drawer"
@@ -26,8 +26,9 @@
         ></Label>
       </StackLayout>
       <StackLayout ~mainContent>
-        <Label textWrap="true" :text="mainContentText"></Label>
         <Button text="Open Drawer" @tap="openDrawer()"></Button>
+        <Label v-if="clickedItem==='main'" textWrap="true" :text="mainContentText"></Label>
+        <first-page v-if="clickedItem==='first'" :jsonToDisplay="users"></first-page>
       </StackLayout>
     </RadSideDrawer>
   </Page>
@@ -39,13 +40,15 @@ const frame = require( "tns-core-modules/ui/frame" );
 const http = require( "tns-core-modules/http" );
 
 import { config_data } from '../mixins/common-config-mixin';
+import FirstPage from './FirstPage.vue';
 
 export default {
   mixins: [ config_data ],
+  components: { FirstPage },
   methods: {
     onPageLoaded () {
       if ( platform.isIOS ) {
-        this.mainContentText = "SideDrawer for NativeScript can be easily setup in the HTML definition of your page by defining tkDrawerContent and tkMainContent. The component has a default transition and position and also exposes notifications related to changes in its state. Swipe from left to open side drawer.";
+        this.mainContentText = "Hello World!";
 
         console.log( "isIOS" );
         const navBar = frame.topmost().ios.controller.navigationBar;
@@ -65,8 +68,12 @@ export default {
     onCloseDrawerTap () {
       this.$refs.drawer.nativeView.closeDrawer();
     },
-
+    callMain () {
+      this.clickedItem = 'main';
+      this.onCloseDrawerTap();
+    },
     getUsers () {
+      this.clickedItem = 'first';
       http.request( {
         url: `${ this.BASE_URL }/api/user`,
         method: "GET"
@@ -76,9 +83,7 @@ export default {
         } );
     },
     parseResponse ( response ) {
-      //   var users = response.content.toJSON();
-      var users = response.content.toString();
-      this.mainContentText = users;
+      this.users = response.content.toJSON();
       this.onCloseDrawerTap();
     }
   },
@@ -86,6 +91,9 @@ export default {
   data () {
     return {
       mainContentText: "",
+      firstItemText: "",
+      clickedItem: "main",
+      users: {},
     };
   }
 };
