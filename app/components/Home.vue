@@ -26,7 +26,7 @@
         ></Label>
       </StackLayout>
       <StackLayout ~mainContent>
-        <Button text="Open Drawer" @tap="openDrawer()"></Button>
+        <Button automationText="opendrawer" text="Open Drawer" @tap="openDrawer()"></Button>
         <Label v-if="clickedItem==='main'" textWrap="true" :text="mainContentText"></Label>
         <first-page v-if="clickedItem==='first'" :jsonToDisplay="users"></first-page>
       </StackLayout>
